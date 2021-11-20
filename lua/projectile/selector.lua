@@ -4,6 +4,9 @@ local jobs = require('projectile.jobs')
 local actions = {}
 local nbr_actions = 0
 
+local win_id = 0
+local bufnr = 0
+
 local function select_actions_cb(job, exit_code)
     if exit_code ~= 0 then
         print(job:result()[1])
@@ -20,6 +23,10 @@ local function select_actions_cb(job, exit_code)
     nbr_actions = #actions
 end
 
+local function set_action_selection(selection)
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, selection)
+end
+
 -- Open the actions selection window
 -- @param path: the path to where projectile should run
 local function toggle(path)
@@ -28,10 +35,10 @@ local function toggle(path)
     jobs.get(path, select_actions_cb)
 
     -- Create popup window for action selection
-    ui.create_selector_prompt(nbr_actions)
+    win_id, bufnr = ui.create_selector_prompt(nbr_actions)
 
     -- set action list in buffer
-    ui.set_selection(actions)
+    set_action_selection(actions)
 end
 
 return {
