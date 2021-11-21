@@ -1,13 +1,54 @@
 local ui = require('projectile.ui')
 local jobs = require('projectile.jobs')
 
+local run_path = ''
+
 local actions = {}
 local nbr_actions = 0
 
 local selected_ids = {}
 
-local win_id = 0
-local bufnr = 0
+local run_output = {}
+
+local select_win_id = -1
+local select_bufnr = 0
+
+local start_win_id = 0
+local output_win_id = -1
+local output_bufnr = 0
+
+-- Toggle the window containing the output of 'projectile do'
+local function toggle_output()
+    if vim.api.nvim_win_is_valid(output_win_id) then
+        vim.api.nvim_win_close(output_win_id, true)
+    else
+        start_win_id, output_win_id, output_bufnr = ui.create_output_window()
+        vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, run_output)
+        vim.api.nvim_set_current_win(start_win_id)
+    end
+end
+
+-- Callback for 'projectile do'
+-- @param job: the job object
+-- @param exit_code: the process exit code
+local function run_actions_cb(job, exit_code)
+    if exit_code ~= 0 then
+        print(job:result()[1])
+        return
+    end
+
+    run_output = {}
+
+    for _, line in pairs(job:result()) do
+        table.insert(run_output, #run_output + 1, line)
+    end
+
+    -- TODO open window
+    -- set output
+    vim.schedule(function()
+        toggle_output()
+    end)
+end
 
 -- Callback for 'projectile get'
 -- @param job: the job object
@@ -31,7 +72,8 @@ end
 -- Populate the popup window with the action list
 -- @param selection: the action list
 local function set_action_selection(selection)
-    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, selection)
+    vim.api.nvim_buf_set_lines(select_bufnr, 0, -1, false, selection)
+    vim.api.nvim_buf_set_option(0, 'modifiable', false)
 end
 
 
@@ -54,8 +96,9 @@ end
 local function on_action_toggle()
     local r, _ = unpack(vim.api.nvim_win_get_cursor(0))
 
-    local selected_action = vim.api.nvim_buf_get_lines(bufnr, r-1, r, false)
+    local selected_action = vim.api.nvim_buf_get_lines(select_bufnr, r-1, r, false)
 
+    vim.api.nvim_buf_set_option(0, 'modifiable', true)
     local updated_str = ''
     if (string.sub(selected_action[1], 1, 1) == '*') then
         updated_str = selected_action[1]:sub(3)
@@ -64,7 +107,8 @@ local function on_action_toggle()
         updated_str = '* ' .. selected_action[1]
         update_selected(r, true)
     end
-    vim.api.nvim_buf_set_lines(bufnr, r-1, r, false, {updated_str})
+    vim.api.nvim_buf_set_lines(select_bufnr, r-1, r, false, {updated_str})
+    vim.api.nvim_buf_set_option(0, 'modifiable', false)
 
 end
 
@@ -81,22 +125,22 @@ local function on_start()
         table.insert(actions_to_run, #actions_to_run + 1, actions[id])
     end
 
-    vim.api.nvim_win_close(win_id, true)
+    vim.api.nvim_win_close(select_win_id, true)
 
-    jobs.do_actions(nil, actions_to_run, nil)
+    jobs.do_actions(run_path, actions_to_run, run_actions_cb)
 end
 
 -- Set the keybindings for the popup window
 local function set_keybindings()
     vim.api.nvim_buf_set_keymap(
-        bufnr,
+        select_bufnr,
         "n",
         "s",
         "<Cmd>lua require('projectile.selector').on_action_toggle()<CR>",
         { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
-        bufnr,
+        select_bufnr,
         "n",
         "<CR>",
         "<Cmd>lua require('projectile.selector').on_start()<CR>",
@@ -106,13 +150,14 @@ end
 
 -- Open the actions selection window
 -- @param path: the path to where projectile should run
-local function toggle(path)
+local function toggle_selector(path)
+    run_path = path
 
     -- Run 'projectile get' to populate the actions set
-    jobs.get(path, select_actions_cb)
+    jobs.get(run_path, select_actions_cb)
 
     -- Create popup window for action selection
-    win_id, bufnr = ui.create_selector_prompt(nbr_actions)
+    select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
 
     -- set action list in buffer
     set_action_selection(actions)
@@ -122,7 +167,8 @@ local function toggle(path)
 end
 
 return {
-    toggle = toggle,
+    toggle_selector = toggle_selector,
+    toggle_output = toggle_output,
     on_action_toggle = on_action_toggle,
     on_start = on_start,
 }

@@ -26,6 +26,25 @@ local function create_selector_prompt(height)
     return win_id, bufnr
 end
 
+local function create_output_window()
+  local start_win = vim.api.nvim_get_current_win()
+
+  vim.api.nvim_command('botright new')
+  local win = vim.api.nvim_get_current_win()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  vim.api.nvim_buf_set_name(0, 'Projectile')
+
+  vim.api.nvim_buf_set_option(0, 'buftype', 'nofile')
+  vim.api.nvim_buf_set_option(0, 'swapfile', false)
+  vim.api.nvim_buf_set_option(0, 'bufhidden', 'wipe')
+
+  vim.api.nvim_command('setlocal cursorline')
+
+  return start_win, win, bufnr
+end
+
 return {
     create_selector_prompt = create_selector_prompt,
+    create_output_window = create_output_window
 }
