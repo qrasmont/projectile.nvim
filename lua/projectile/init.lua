@@ -6,5 +6,6 @@ end
 
 return {
     run = run,
-    toggle_output = selector.toggle_output
+    toggle_output = selector.toggle_output,
+    config = require('projectile.config').config
 }
