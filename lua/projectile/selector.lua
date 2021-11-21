@@ -1,5 +1,6 @@
 local ui = require('projectile.ui')
 local jobs = require('projectile.jobs')
+local config = require('projectile.config').config
 
 local run_path = ''
 
@@ -17,6 +18,8 @@ local start_win_id = 0
 local output_win_id = -1
 local output_bufnr = 0
 
+local output_behavior = config.on_output or 'notify'
+
 -- Toggle the window containing the output of 'projectile do'
 local function toggle_output()
     if vim.api.nvim_win_is_valid(output_win_id) then
@@ -33,7 +36,7 @@ end
 -- @param exit_code: the process exit code
 local function run_actions_cb(job, exit_code)
     if exit_code ~= 0 then
-        print(job:result()[1])
+        print('FAILED' .. job:result()[1])
         return
     end
 
@@ -43,10 +46,12 @@ local function run_actions_cb(job, exit_code)
         table.insert(run_output, #run_output + 1, line)
     end
 
-    -- TODO open window
-    -- set output
     vim.schedule(function()
-        toggle_output()
+        if output_behavior == 'notify' then
+            print('SUCCESS')
+        else
+            toggle_output()
+        end
     end)
 end
 
