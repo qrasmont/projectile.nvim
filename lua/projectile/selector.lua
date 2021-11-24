@@ -151,6 +151,20 @@ local function set_keybindings()
         "<Cmd>lua require('projectile.selector').on_start()<CR>",
         { silent = true }
     )
+    vim.api.nvim_buf_set_keymap(
+        select_bufnr,
+        "n",
+        "q",
+        "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
+        { silent = true }
+    )
+    vim.api.nvim_buf_set_keymap(
+        select_bufnr,
+        "n",
+        "<ESC>",
+        "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
+        { silent = true }
+    )
 end
 
 -- Open the actions selection window
