@@ -36,7 +36,7 @@ end
 -- @param exit_code: the process exit code
 local function run_actions_cb(job, exit_code)
     if exit_code ~= 0 then
-        print('FAILED' .. job:result()[1])
+        vim.notify('FAILED'.. job:result()[1])
         return
     end
 
@@ -48,7 +48,7 @@ local function run_actions_cb(job, exit_code)
 
     vim.schedule(function()
         if output_behavior == 'notify' then
-            print('SUCCESS')
+            vim.notify('Success')
         else
             toggle_output()
         end
@@ -60,7 +60,7 @@ end
 -- @param exit_code: the process exit code
 local function select_actions_cb(job, exit_code)
     if exit_code ~= 0 then
-        print(job:result()[1])
+        vim.notify(job:result()[1])
         return
     end
 
@@ -121,7 +121,7 @@ end
 local function on_start()
     -- Check for empty selection
     if next(selected_ids) == nil then
-        print('Projectile: No actions selected!')
+        vim.notify('Projectile: No actions selected!')
         return
     end
 
