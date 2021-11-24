@@ -156,19 +156,23 @@ end
 -- Open the actions selection window
 -- @param path: the path to where projectile should run
 local function toggle_selector(path)
-    run_path = path
+    if vim.api.nvim_win_is_valid(select_win_id) then
+        vim.api.nvim_win_close(select_win_id, true)
+    else
+        run_path = path
 
-    -- Run 'projectile get' to populate the actions set
-    jobs.get(run_path, select_actions_cb)
+        -- Run 'projectile get' to populate the actions set
+        jobs.get(run_path, select_actions_cb)
 
-    -- Create popup window for action selection
-    select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
+        -- Create popup window for action selection
+        select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
 
-    -- set action list in buffer
-    set_action_selection(actions)
+        -- set action list in buffer
+        set_action_selection(actions)
 
-    -- set popup keybindings
-    set_keybindings()
+        -- set popup keybindings
+        set_keybindings()
+    end
 end
 
 return {
