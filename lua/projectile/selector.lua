@@ -18,25 +18,31 @@ local start_win_id = 0
 local output_win_id = -1
 local output_bufnr = 0
 
+local last_pos = 1
+
 local output_behavior = config.on_output or 'notify'
 
 -- Toggle the window containing the output of 'projectile do'
 local function toggle_output()
     if vim.api.nvim_win_is_valid(output_win_id) then
+        last_pos, _ = unpack(vim.api.nvim_win_get_cursor(output_win_id))
         vim.api.nvim_win_close(output_win_id, true)
     else
         start_win_id, output_win_id, output_bufnr = ui.create_output_window()
         vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, run_output)
+        vim.api.nvim_win_set_cursor(output_win_id, {last_pos, 0})
         vim.api.nvim_set_current_win(start_win_id)
-    end
+   end
 end
 
 -- Callback for 'projectile do'
 -- @param job: the job object
 -- @param exit_code: the process exit code
-local function run_actions_cb(job, exit_code)
+local function run_on_exit_cb(job, exit_code)
     if exit_code ~= 0 then
-        vim.notify('FAILED'.. job:result()[1])
+        vim.schedule(function()
+            vim.notify('FAILED'.. job:result()[1])
+        end)
         return
     end
 
@@ -49,9 +55,20 @@ local function run_actions_cb(job, exit_code)
     vim.schedule(function()
         if output_behavior == 'notify' then
             vim.notify('Success')
-        else
+        elseif output_behavior == 'on_exit' then
             toggle_output()
         end
+    end)
+end
+
+-- Callback for 'projectile do'
+-- @param line: the new line from stdout
+local function run_on_sdtout_cb(_, line)
+    table.insert(run_output, #run_output + 1, line)
+
+    vim.schedule(function()
+        vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, run_output)
+        vim.api.nvim_win_set_cursor(output_win_id, {#run_output, 0})
     end)
 end
 
@@ -60,7 +77,9 @@ end
 -- @param exit_code: the process exit code
 local function select_actions_cb(job, exit_code)
     if exit_code ~= 0 then
-        vim.notify(job:result()[1])
+        vim.schedule(function()
+            vim.notify(job:result()[1])
+        end)
         return
     end
 
@@ -132,7 +151,13 @@ local function on_start()
 
     vim.api.nvim_win_close(select_win_id, true)
 
-    jobs.do_actions(run_path, actions_to_run, run_actions_cb)
+    if output_behavior == 'on_stdout' then
+        run_output = {}
+        toggle_output()
+        jobs.do_actions(run_path, actions_to_run, nil, run_on_sdtout_cb)
+    else
+        jobs.do_actions(run_path, actions_to_run, run_on_exit_cb, nil)
+    end
 end
 
 -- Set the keybindings for the popup window

@@ -22,7 +22,7 @@ end
 -- @param path: where to run
 -- @param actions: a set of the actions to perform
 -- @param on_result: callback function, call when job ends
-local function do_actions(path, actions, on_result)
+local function do_actions(path, actions, on_result, on_output)
     -- Use cwd if no path is provided
     if path == nil or path == '' then
         path = vim.fn.getcwd()
@@ -37,6 +37,7 @@ local function do_actions(path, actions, on_result)
         args = actions,
         cwd = path,
         on_exit = on_result,
+        on_stdout = on_output,
     }):start()
 end
 
