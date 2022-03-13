@@ -1,6 +1,5 @@
 local ui = require('projectile.ui')
 local jobs = require('projectile.jobs')
-local config = require('projectile.config').config
 local notifier = require('projectile.notifier')
 
 local run_path = ''
@@ -21,7 +20,7 @@ local output_bufnr = 0
 
 local last_pos = 1
 
-local output_behavior = config.on_output or 'notify'
+local output_behavior = 'notify'
 
 -- Toggle the window containing the output of 'projectile do'
 local function toggle_output()
@@ -218,7 +217,12 @@ local function toggle_selector(path)
     end
 end
 
+local function setup(conf)
+    notifier.setup(conf)
+end
+
 return {
+    setup = setup,
     toggle_selector = toggle_selector,
     toggle_output = toggle_output,
     on_action_toggle = on_action_toggle,

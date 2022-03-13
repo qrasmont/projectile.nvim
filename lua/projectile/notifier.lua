@@ -1,5 +1,4 @@
 local M = {}
-
 local config = {
     wait = {
         wait_text = 'Projectile',
