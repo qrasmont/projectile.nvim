@@ -41,7 +41,6 @@ end
 local function run_on_exit_cb(job, exit_code)
     if exit_code ~= 0 then
         vim.schedule(function()
-            vim.notify('FAILED'.. job:result()[1])
             notifier.stop(false)
         end)
         return
@@ -55,7 +54,6 @@ local function run_on_exit_cb(job, exit_code)
 
     vim.schedule(function()
         if output_behavior == 'notify' then
-            vim.notify('Success')
             notifier.stop(true)
         elseif output_behavior == 'on_exit' then
             toggle_output()
