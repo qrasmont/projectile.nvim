@@ -1,6 +1,6 @@
 local ui = require('projectile.ui')
 local jobs = require('projectile.jobs')
-local config = require('projectile.config').config
+local notifier = require('projectile.notifier')
 
 local run_path = ''
 
@@ -20,7 +20,7 @@ local output_bufnr = 0
 
 local last_pos = 1
 
-local output_behavior = config.on_output or 'notify'
+local output_behavior = 'notify'
 
 -- Toggle the window containing the output of 'projectile do'
 local function toggle_output()
@@ -41,7 +41,7 @@ end
 local function run_on_exit_cb(job, exit_code)
     if exit_code ~= 0 then
         vim.schedule(function()
-            vim.notify('FAILED'.. job:result()[1])
+            notifier.stop(false)
         end)
         return
     end
@@ -54,7 +54,7 @@ local function run_on_exit_cb(job, exit_code)
 
     vim.schedule(function()
         if output_behavior == 'notify' then
-            vim.notify('Success')
+            notifier.stop(true)
         elseif output_behavior == 'on_exit' then
             toggle_output()
         end
@@ -156,6 +156,7 @@ local function on_start()
         toggle_output()
         jobs.do_actions(run_path, actions_to_run, nil, run_on_sdtout_cb)
     else
+        notifier.start()
         jobs.do_actions(run_path, actions_to_run, run_on_exit_cb, nil)
     end
 end
@@ -163,32 +164,32 @@ end
 -- Set the keybindings for the popup window
 local function set_keybindings()
     vim.api.nvim_buf_set_keymap(
-        select_bufnr,
-        "n",
-        "s",
-        "<Cmd>lua require('projectile.selector').on_action_toggle()<CR>",
-        { silent = true }
+    select_bufnr,
+    "n",
+    "s",
+    "<Cmd>lua require('projectile.selector').on_action_toggle()<CR>",
+    { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
-        select_bufnr,
-        "n",
-        "<CR>",
-        "<Cmd>lua require('projectile.selector').on_start()<CR>",
-        { silent = true }
+    select_bufnr,
+    "n",
+    "<CR>",
+    "<Cmd>lua require('projectile.selector').on_start()<CR>",
+    { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
-        select_bufnr,
-        "n",
-        "q",
-        "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
-        { silent = true }
+    select_bufnr,
+    "n",
+    "q",
+    "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
+    { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
-        select_bufnr,
-        "n",
-        "<ESC>",
-        "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
-        { silent = true }
+    select_bufnr,
+    "n",
+    "<ESC>",
+    "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
+    { silent = true }
     )
 end
 
@@ -214,7 +215,12 @@ local function toggle_selector(path)
     end
 end
 
+local function setup(conf)
+    notifier.setup(conf)
+end
+
 return {
+    setup = setup,
     toggle_selector = toggle_selector,
     toggle_output = toggle_output,
     on_action_toggle = on_action_toggle,
