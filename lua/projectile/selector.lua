@@ -20,7 +20,22 @@ local output_bufnr = 0
 
 local last_pos = 1
 
-local output_behavior = 'notify'
+local config = {
+    output_behavior = 'notify',
+    notifier = {
+        wait = {
+            wait_text = 'Projectile',
+            rate = 1000,
+        },
+        done = {
+            success_symbol = '✔',
+            success_text = 'Success',
+            fail_symbol = '✖',
+            fail_text = 'Fail',
+            delay = 3000,
+        }
+    }
+}
 
 -- Toggle the window containing the output of 'projectile do'
 local function toggle_output()
@@ -53,9 +68,8 @@ local function run_on_exit_cb(job, exit_code)
     end
 
     vim.schedule(function()
-        if output_behavior == 'notify' then
-            notifier.stop(true)
-        elseif output_behavior == 'on_exit' then
+        notifier.stop(true)
+        if config.output_behavior == 'on_exit' then
             toggle_output()
         end
     end)
@@ -151,7 +165,7 @@ local function on_start()
 
     vim.api.nvim_win_close(select_win_id, true)
 
-    if output_behavior == 'on_stdout' then
+    if config.output_behavior == 'on_stdout' then
         run_output = {}
         toggle_output()
         jobs.do_actions(run_path, actions_to_run, nil, run_on_sdtout_cb)
@@ -216,7 +230,8 @@ local function toggle_selector(path)
 end
 
 local function setup(conf)
-    notifier.setup(conf)
+    config = vim.tbl_deep_extend("force", config, conf or {})
+    notifier.setup(config.notifier)
 end
 
 return {
