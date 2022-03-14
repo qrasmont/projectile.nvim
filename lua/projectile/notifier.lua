@@ -100,6 +100,21 @@ local function close_window()
     end
 end
 
+local function longest_str_length()
+    local success_len = #config.done.success_symbol + #config.done.success_text
+    local fail_len = #config.done.fail_symbol + #config.done.fail_text
+
+    local longest = #config.wait.wait_text + #loader[1]
+    if success_len > longest then
+        longest = success_len
+    end
+    if fail_len > longest then
+        longest = fail_len
+    end
+
+    return longest
+end
+
 local function delay_close()
     if notifier.close then
         close_window()
@@ -123,6 +138,8 @@ function M.setup(conf)
     config = vim.tbl_deep_extend("force", config, conf or {})
 
     vim.cmd([[highlight default link NotifierText Title]])
+
+    notifier.width = longest_str_length() + 2 -- 1 space + 1 padding
 end
 
 return M
