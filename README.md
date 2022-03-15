@@ -2,19 +2,15 @@
 
 Plugin for projectile.
 
-### Specs
-- projectile.do(path, actions)
-- projectile.get(path)
-- projectile.action_prompt(path)
-- projectile.toggle_buffer()
+![](_resources/demo.gif)
 
+### Config
+TODO
 ```lua
-projectile.config {
-    output = "hide",
-}
+projectile.setup {}
 ```
 
 #### output
-- "hide"
-- "show"
-- "show_on_exit"
+- "notify"
+- "on_exit"
+- "on_stdout"
