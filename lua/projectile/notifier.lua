@@ -83,6 +83,7 @@ local function create_window()
 
     vim.api.nvim_win_set_option(notifier.winid, "winhighlight", "Normal:NotifierText")
 end
+
 function M.start()
     reset()
     create_window()
@@ -130,6 +131,13 @@ function M.stop(success)
     notifier.stopped = true
     local text = success and config.done.success_symbol .. ' ' .. config.done.success_text
                          or config.done.fail_symbol .. ' ' .. config.done.fail_text
+
+    if success then
+        vim.api.nvim_win_set_option(notifier.winid, "winhighlight", "Normal:NotifierSuccess")
+    else
+        vim.api.nvim_win_set_option(notifier.winid, "winhighlight", "Normal:NotifierFail")
+    end
+
     vim.api.nvim_buf_set_lines(notifier.bufnr, 0, 1, false, {text})
     delay_close()
 end
