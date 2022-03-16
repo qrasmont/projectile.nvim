@@ -40,11 +40,11 @@ local config = {
             '[...]',
             '[   ]',
         },
-        mappings = {
-            select_action = 's',
-            start = '<CR>',
-            quit = 'q',
-        }
+    },
+    mappings = {
+        select_action = 's',
+        start = '<CR>',
+        quit = 'q',
     }
 }
 
