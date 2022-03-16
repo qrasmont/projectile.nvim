@@ -137,7 +137,7 @@ local function update_selected(id, selected)
 end
 
 -- Handle action toggle
-local function on_action_toggle()
+local function select_action()
     local r, _ = unpack(vim.api.nvim_win_get_cursor(0))
 
     local selected_action = vim.api.nvim_buf_get_lines(select_bufnr, r-1, r, false)
@@ -157,7 +157,7 @@ local function on_action_toggle()
 end
 
 -- Run 'projectile do' with selected actions
-local function on_start()
+local function start()
     -- Check for empty selection
     if next(selected_ids) == nil then
         vim.notify('Projectile: No actions selected!')
@@ -187,14 +187,14 @@ local function set_keybindings()
     select_bufnr,
     "n",
     "s",
-    "<Cmd>lua require('projectile.selector').on_action_toggle()<CR>",
+    "<Cmd>lua require('projectile.selector').select_action()<CR>",
     { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
     select_bufnr,
     "n",
     "<CR>",
-    "<Cmd>lua require('projectile.selector').on_start()<CR>",
+    "<Cmd>lua require('projectile.selector').start()<CR>",
     { silent = true }
     )
     vim.api.nvim_buf_set_keymap(
@@ -244,6 +244,5 @@ return {
     setup = setup,
     toggle_selector = toggle_selector,
     toggle_output = toggle_output,
-    on_action_toggle = on_action_toggle,
-    on_start = on_start,
+    start = start,
 }
