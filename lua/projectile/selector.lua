@@ -33,6 +33,12 @@ local config = {
             fail_symbol = '✖',
             fail_text = 'Fail',
             delay = 3000,
+        },
+        loader = {
+            "[.  ]",
+            "[.. ]",
+            "[...]",
+            "[   ]",
         }
     }
 }
