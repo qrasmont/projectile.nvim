@@ -35,10 +35,15 @@ local config = {
             delay = 3000,
         },
         loader = {
-            "[.  ]",
-            "[.. ]",
-            "[...]",
-            "[   ]",
+            '[.  ]',
+            '[.. ]',
+            '[...]',
+            '[   ]',
+        },
+        mappings = {
+            select_action = 's',
+            start = '<CR>',
+            quit = 'q',
         }
     }
 }
@@ -185,32 +190,33 @@ end
 local function set_keybindings()
     vim.api.nvim_buf_set_keymap(
     select_bufnr,
-    "n",
-    "s",
-    "<Cmd>lua require('projectile.selector').select_action()<CR>",
-    { silent = true }
-    )
+    'n',
+    config.mappings.select_action,
+    '<Cmd>lua require("projectile.selector").select_action()<CR>',
+    { silent = true })
+
     vim.api.nvim_buf_set_keymap(
     select_bufnr,
-    "n",
-    "<CR>",
-    "<Cmd>lua require('projectile.selector').start()<CR>",
-    { silent = true }
-    )
+    'n',
+    config.mappings.start,
+    '<Cmd>lua require("projectile.selector").start()<CR>',
+    { silent = true })
+
     vim.api.nvim_buf_set_keymap(
     select_bufnr,
-    "n",
-    "q",
-    "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
-    { silent = true }
-    )
-    vim.api.nvim_buf_set_keymap(
-    select_bufnr,
-    "n",
-    "<ESC>",
-    "<Cmd>lua require('projectile.selector').toggle_selector()<CR>",
-    { silent = true }
-    )
+    'n',
+    config.mappings.quit,
+    '<Cmd>lua require("projectile.selector").toggle_selector()<CR>',
+    { silent = true })
+
+    if config.mappings.quit ~= '<ESC>' then
+        vim.api.nvim_buf_set_keymap(
+        select_bufnr,
+        'n',
+        '<ESC>',
+        '<Cmd>lua require("projectile.selector").toggle_selector()<CR>',
+        { silent = true })
+    end
 end
 
 -- Open the actions selection window
