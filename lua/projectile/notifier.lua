@@ -10,14 +10,13 @@ local config = {
         fail_symbol = '✖',
         fail_text = 'Fail',
         delay = 3000,
+    },
+    loader = {
+        "[.  ]",
+        "[.. ]",
+        "[...]",
+        "[   ]",
     }
-}
-
-local loader = {
-    "[.  ]",
-    "[.. ]",
-    "[...]",
-    "[   ]",
 }
 
 local notifier = {
@@ -41,8 +40,8 @@ local function wait()
         return
     end
 
-    notifier.load_idx = (notifier.load_idx + 1) % #loader
-    vim.api.nvim_buf_set_lines(notifier.bufnr, 0, 1, false, {loader[notifier.load_idx + 1] .. ' ' .. config.wait.wait_text})
+    notifier.load_idx = (notifier.load_idx + 1) % #config.loader
+    vim.api.nvim_buf_set_lines(notifier.bufnr, 0, 1, false, {config.loader[notifier.load_idx + 1] .. ' ' .. config.wait.wait_text})
 
     vim.defer_fn(wait, config.wait.rate)
 end
@@ -105,7 +104,7 @@ local function longest_str_length()
     local success_len = #config.done.success_symbol + #config.done.success_text
     local fail_len = #config.done.fail_symbol + #config.done.fail_text
 
-    local longest = #config.wait.wait_text + #loader[1]
+    local longest = #config.wait.wait_text + #config.loader[1]
     if success_len > longest then
         longest = success_len
     end
