@@ -250,5 +250,6 @@ return {
     setup = setup,
     toggle_selector = toggle_selector,
     toggle_output = toggle_output,
+    select_action = select_action,
     start = start,
 }
