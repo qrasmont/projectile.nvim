@@ -227,17 +227,26 @@ local function toggle_selector(path)
     else
         run_path = path
 
-        -- Run 'projectile get' to populate the actions set
-        jobs.get(run_path, select_actions_cb)
+        local table, err = loadfile('.projectile.lua')
+        if not table then
+            print('No config found in cwd')
+            return
+        end
 
-        -- Create popup window for action selection
-        select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
+        local user_config = table()
+        print(user_config[1].name)
 
-        -- set action list in buffer
-        set_action_selection(actions)
+        -- -- Run 'projectile get' to populate the actions set
+        -- jobs.get(run_path, select_actions_cb)
 
-        -- set popup keybindings
-        set_keybindings()
+        -- -- Create popup window for action selection
+        -- select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
+
+        -- -- set action list in buffer
+        -- set_action_selection(actions)
+
+        -- -- set popup keybindings
+        -- set_keybindings()
     end
 end
 

@@ -1,6 +1,19 @@
 ## projectile.nvim
 
-Plugin for projectile.
+WIP V2: Full lua implementation
+
+New config method:
+```lua
+return {
+    {
+        name = 'build',
+        cmds = {
+            'make',
+        },
+        subdir = '',
+    },
+}
+```
 
 ![](_resources/demo.gif)
 
