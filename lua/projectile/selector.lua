@@ -1,6 +1,7 @@
 local ui = require('projectile.ui')
 local jobs = require('projectile.jobs')
 local notifier = require('projectile.notifier')
+local parser = require('projectile.parser')
 
 local run_path = ''
 
@@ -227,26 +228,21 @@ local function toggle_selector(path)
     else
         run_path = path
 
-        local table, err = loadfile('.projectile.lua')
-        if not table then
-            print('No config found in cwd')
+        if not parser.load(path) then
+            print('No projectile config found')
             return
         end
 
-        local user_config = table()
-        print(user_config[1].name)
-
-        -- -- Run 'projectile get' to populate the actions set
-        -- jobs.get(run_path, select_actions_cb)
+        actions = parser.parse()
 
         -- -- Create popup window for action selection
-        -- select_win_id, select_bufnr = ui.create_selector_prompt(nbr_actions)
+        select_win_id, select_bufnr = ui.create_selector_prompt(#actions)
 
         -- -- set action list in buffer
-        -- set_action_selection(actions)
+        set_action_selection(actions)
 
         -- -- set popup keybindings
-        -- set_keybindings()
+        set_keybindings()
     end
 end
 

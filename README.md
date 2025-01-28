@@ -5,10 +5,16 @@ WIP V2: Full lua implementation
 New config method:
 ```lua
 return {
-    {
-        name = 'build',
+    build = {
         cmds = {
-            'make',
+            '',
+        },
+        subdir = '',
+    },
+
+    clean = {
+        cmds = {
+            '',
         },
         subdir = '',
     },
